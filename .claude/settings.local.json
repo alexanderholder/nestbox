@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [],
+    "deny": [],
+    "ask": [],
+    "additionalDirectories": ["~/Code/fizzy", "~/Code/hindsiteind/react-native"]
+  }
+}
