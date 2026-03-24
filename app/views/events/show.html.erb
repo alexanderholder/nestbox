@@ -18,10 +18,13 @@
   </div>
 
   <div class="video-container">
-    <% if @event.completed? && @event.clip.attached? %>
+    <% if @event.webrtc_clip.attached? %>
+      <video controls autoplay preload="auto">
+        <source src="<%= url_for(@event.webrtc_clip) %>" type="video/mp4">
+      </video>
+    <% elsif @event.clip.attached? %>
       <video controls autoplay preload="auto">
         <source src="<%= url_for(@event.clip) %>" type="video/mp4">
-        Your browser does not support the video tag.
       </video>
     <% elsif @event.pending? %>
       <div class="video-placeholder">
@@ -34,11 +37,20 @@
       </div>
     <% else %>
       <div class="video-placeholder error">
-        <p>Recording failed.</p>
+        <p>No media available.</p>
         <%= button_to "Retry Recording", event_retry_path(@event), class: "retry-btn" %>
       </div>
     <% end %>
   </div>
+
+  <% if @event.clip.attached? && @event.webrtc_clip.attached? %>
+    <details class="clip-preview-section">
+      <summary>View Clip Preview (10 sec)</summary>
+      <video controls preload="metadata">
+        <source src="<%= url_for(@event.clip) %>" type="video/mp4">
+      </video>
+    </details>
+  <% end %>
 
   <div class="event-metadata">
     <dl>
@@ -50,19 +62,16 @@
 
       <dt>Time</dt>
       <dd><%= @event.start_time.strftime("%B %d, %Y at %I:%M:%S %p") %></dd>
-
-      <% if @event.duration_seconds&.positive? %>
-        <dt>Duration</dt>
-        <dd><%= @event.duration_seconds %> seconds</dd>
-      <% end %>
-
-      <dt>Status</dt>
-      <dd><span class="status <%= @event.download_state %>"><%= @event.download_state.titleize %></span></dd>
     </dl>
 
-    <% if @event.completed? && @event.clip.attached? %>
+    <% if @event.webrtc_clip.attached? || @event.clip.attached? %>
       <div class="actions">
-        <%= link_to "Download Clip", rails_blob_path(@event.clip, disposition: "attachment"), class: "download-btn" %>
+        <% if @event.webrtc_clip.attached? %>
+          <%= link_to "Download Recording", rails_blob_path(@event.webrtc_clip, disposition: "attachment"), class: "download-btn" %>
+        <% end %>
+        <% if @event.clip.attached? %>
+          <%= link_to "Download Clip Preview", rails_blob_path(@event.clip, disposition: "attachment"), class: "download-btn btn-secondary" %>
+        <% end %>
       </div>
     <% end %>
   </div>

@@ -1,5 +1,5 @@
 class Event < ApplicationRecord
-  include Downloadable, Polling
+  include Downloadable, Polling, WebrtcRecordable
 
   belongs_to :camera
 

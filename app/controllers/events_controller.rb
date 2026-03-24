@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   def index
-    @events = Event.includes(:camera)
+    @events = Event.includes(:camera, clip_attachment: :blob, webrtc_clip_attachment: :blob)
                    .reverse_chronologically
 
     @events = @events.where(camera_id: params[:camera_id]) if params[:camera_id].present?

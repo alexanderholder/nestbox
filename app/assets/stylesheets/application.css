@@ -135,7 +135,8 @@ main {
   justify-content: center;
 }
 
-.event-thumbnail video {
+.event-thumbnail video,
+.event-thumbnail img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -280,12 +281,47 @@ main {
 
 .video-container {
   margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .video-container video {
   width: 100%;
   border-radius: 8px;
   background: #000;
+}
+
+.video-section h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.clip-preview-section {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.clip-preview-section summary {
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.clip-preview-section summary:hover {
+  background: #e9ecef;
+}
+
+.clip-preview-section video {
+  width: 100%;
+  display: block;
 }
 
 .video-placeholder {
@@ -329,6 +365,9 @@ main {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border);
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .download-btn {
@@ -337,6 +376,19 @@ main {
   padding: 0.5rem 1rem;
   border-radius: 4px;
   display: inline-block;
+}
+
+.download-btn:hover {
+  background: #0056b3;
+  text-decoration: none;
+}
+
+.download-btn.btn-secondary {
+  background: #6c757d;
+}
+
+.download-btn.btn-secondary:hover {
+  background: #5a6268;
 }
 
 /* Status badges */

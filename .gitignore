@@ -37,3 +37,4 @@
 /config/google_cloud_credentials.json
 /config/*credentials*.json
 
+/script/webrtc/node_modules

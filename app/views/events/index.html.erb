@@ -22,7 +22,11 @@
     <% @events.each do |event| %>
       <%= link_to event_path(event), class: "event-card" do %>
         <div class="event-thumbnail">
-          <% if event.completed? && event.clip.attached? %>
+          <% if event.webrtc_clip.attached? %>
+            <video preload="metadata" muted>
+              <source src="<%= url_for(event.webrtc_clip) %>#t=0.5" type="video/mp4">
+            </video>
+          <% elsif event.clip.attached? %>
             <video preload="metadata" muted>
               <source src="<%= url_for(event.clip) %>#t=0.5" type="video/mp4">
             </video>
@@ -38,9 +42,6 @@
           <time datetime="<%= event.start_time.iso8601 %>">
             <%= time_ago_in_words(event.start_time) %> ago
           </time>
-          <% if event.duration_seconds&.positive? %>
-            <span class="duration"><%= event.duration_seconds %>s</span>
-          <% end %>
         </div>
       <% end %>
     <% end %>
