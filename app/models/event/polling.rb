@@ -6,7 +6,7 @@ module Event::Polling
 
   class_methods do
     def poll_later
-      PollJob.perform_later
+      Event::PollJob.perform_later
     end
 
     def poll_now

@@ -1,17 +1,6 @@
-# examples:
-#   periodic_cleanup:
-#     class: CleanSoftDeletedRecordsJob
-#     queue: background
-#     args: [ 1000, { batch_size: 500 } ]
-#     schedule: every hour
-#   periodic_cleanup_with_command:
-#     command: "SoftDeletedRecord.due.delete_all"
-#     priority: 2
-#     schedule: at 5am every day
-
 development:
   poll_nest_events:
-    class: Event::Polling::PollJob
+    class: Event::PollJob
     schedule: every 30 seconds
 
 production:
@@ -20,5 +9,5 @@ production:
     schedule: every hour at minute 12
 
   poll_nest_events:
-    class: Event::Polling::PollJob
+    class: Event::PollJob
     schedule: every 30 seconds
