@@ -1,0 +1,37 @@
+<% content_for(:title) { "Live - #{@camera.name}" } %>
+
+<div class="live-stream-page"
+     data-controller="live-stream"
+     data-live-stream-camera-id-value="<%= @camera.id %>">
+
+  <div class="page-header">
+    <div class="page-header__title">
+      <h1><%= @camera.name %></h1>
+      <span class="status status--connecting" data-live-stream-target="status">Connecting...</span>
+    </div>
+    <div class="page-header__actions">
+      <button type="button"
+              class="btn btn-secondary"
+              data-live-stream-target="reconnectButton"
+              data-action="live-stream#reconnect"
+              hidden>
+        Reconnect
+      </button>
+      <%= link_to "Back to Camera", camera_path(@camera), class: "btn" %>
+    </div>
+  </div>
+
+  <div class="video-container video-container--live">
+    <video data-live-stream-target="video"
+           autoplay
+           playsinline
+           muted>
+    </video>
+    <div class="video-overlay">
+      <div class="video-overlay__loading">
+        <div class="spinner"></div>
+        <span>Connecting to camera...</span>
+      </div>
+    </div>
+  </div>
+</div>

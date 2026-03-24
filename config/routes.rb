@@ -5,6 +5,12 @@ Rails.application.routes.draw do
   resource :nest_connection, only: [ :show, :new, :create, :destroy ] do
     get :callback, on: :member
   end
+
+  resources :cameras, only: [ :index, :show ] do
+    resource :sync, only: :create, module: :cameras
+    resource :stream, only: [ :show, :create, :update ], module: :cameras
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
