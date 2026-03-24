@@ -1,0 +1,69 @@
+<% content_for(:title) { "Event - #{@event.camera.name} - Nestbox" } %>
+
+<div class="event-detail">
+  <div class="event-navigation">
+    <% if @previous_event %>
+      <%= link_to "&larr; Previous".html_safe, event_path(@previous_event), class: "nav-link" %>
+    <% else %>
+      <span class="nav-link disabled">&larr; Previous</span>
+    <% end %>
+
+    <%= link_to @event.camera.name, camera_path(@event.camera), class: "camera-link" %>
+
+    <% if @next_event %>
+      <%= link_to "Next &rarr;".html_safe, event_path(@next_event), class: "nav-link" %>
+    <% else %>
+      <span class="nav-link disabled">Next &rarr;</span>
+    <% end %>
+  </div>
+
+  <div class="video-container">
+    <% if @event.completed? && @event.clip.attached? %>
+      <video controls autoplay preload="auto">
+        <source src="<%= url_for(@event.clip) %>" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    <% elsif @event.pending? %>
+      <div class="video-placeholder">
+        <p>Recording clip...</p>
+        <p>Refresh the page in a moment.</p>
+      </div>
+    <% elsif @event.downloading? %>
+      <div class="video-placeholder">
+        <p>Recording in progress...</p>
+      </div>
+    <% else %>
+      <div class="video-placeholder error">
+        <p>Recording failed.</p>
+        <%= button_to "Retry Recording", event_retry_path(@event), class: "retry-btn" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="event-metadata">
+    <dl>
+      <dt>Camera</dt>
+      <dd><%= link_to @event.camera.name, camera_path(@event.camera) %></dd>
+
+      <dt>Type</dt>
+      <dd><span class="event-type <%= @event.event_type %>"><%= @event.event_type.titleize %></span></dd>
+
+      <dt>Time</dt>
+      <dd><%= @event.start_time.strftime("%B %d, %Y at %I:%M:%S %p") %></dd>
+
+      <% if @event.duration_seconds&.positive? %>
+        <dt>Duration</dt>
+        <dd><%= @event.duration_seconds %> seconds</dd>
+      <% end %>
+
+      <dt>Status</dt>
+      <dd><span class="status <%= @event.download_state %>"><%= @event.download_state.titleize %></span></dd>
+    </dl>
+
+    <% if @event.completed? && @event.clip.attached? %>
+      <div class="actions">
+        <%= link_to "Download Clip", rails_blob_path(@event.clip, disposition: "attachment"), class: "download-btn" %>
+      </div>
+    <% end %>
+  </div>
+</div>

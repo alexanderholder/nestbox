@@ -1,0 +1,55 @@
+<% content_for(:title) { "Timeline - Nestbox" } %>
+
+<div class="page-header">
+  <h1>Timeline</h1>
+
+  <div class="filters">
+    <%= form_with url: events_path, method: :get, local: true, class: "filter-form" do |form| %>
+      <%= form.select :camera_id,
+          options_from_collection_for_select(Camera.ordered, :id, :name, params[:camera_id]),
+          { include_blank: "All Cameras" },
+          { onchange: "this.form.submit()" } %>
+
+      <%= form.date_field :date,
+          value: params[:date],
+          onchange: "this.form.submit()" %>
+    <% end %>
+  </div>
+</div>
+
+<% if @events.any? %>
+  <div class="events-grid">
+    <% @events.each do |event| %>
+      <%= link_to event_path(event), class: "event-card" do %>
+        <div class="event-thumbnail">
+          <% if event.completed? && event.clip.attached? %>
+            <video preload="metadata" muted>
+              <source src="<%= url_for(event.clip) %>#t=0.5" type="video/mp4">
+            </video>
+          <% else %>
+            <div class="placeholder">
+              <span class="status <%= event.download_state %>"><%= event.download_state.titleize %></span>
+            </div>
+          <% end %>
+        </div>
+        <div class="event-info">
+          <span class="camera-name"><%= event.camera.name %></span>
+          <span class="event-type <%= event.event_type %>"><%= event.event_type.titleize %></span>
+          <time datetime="<%= event.start_time.iso8601 %>">
+            <%= time_ago_in_words(event.start_time) %> ago
+          </time>
+          <% if event.duration_seconds&.positive? %>
+            <span class="duration"><%= event.duration_seconds %>s</span>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <p>No events found.</p>
+    <% if Camera.none? %>
+      <p>Run <code>rails nestbox:setup</code> to configure your cameras.</p>
+    <% end %>
+  </div>
+<% end %>
