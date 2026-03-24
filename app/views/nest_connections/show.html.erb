@@ -1,0 +1,55 @@
+<% content_for(:title) { "Nest Connection - Nestbox" } %>
+
+<div class="page-header">
+  <h1>Nest Connection</h1>
+</div>
+
+<div class="connection-status">
+  <dl>
+    <dt>Status</dt>
+    <dd>
+      <span class="status <%= @connection.state %>"><%= @connection.state.titleize %></span>
+    </dd>
+
+    <% if @connection.project_id.present? %>
+      <dt>Project ID</dt>
+      <dd><code><%= @connection.project_id %></code></dd>
+    <% end %>
+
+    <% if @connection.last_success_at.present? %>
+      <dt>Last Connected</dt>
+      <dd><%= time_ago_in_words(@connection.last_success_at) %> ago</dd>
+    <% end %>
+
+    <% if @connection.last_error.present? %>
+      <dt>Last Error</dt>
+      <dd class="error"><%= @connection.last_error %></dd>
+    <% end %>
+  </dl>
+
+  <div class="actions">
+    <% if @connection.configured? %>
+      <%= link_to "Re-authorize", new_nest_connection_path, class: "btn" %>
+      <%= button_to "Disconnect", nest_connection_path, method: :delete, class: "btn btn-danger", data: { turbo: false, confirm: "Are you sure?" } %>
+    <% else %>
+      <%= link_to "Connect to Nest", new_nest_connection_path, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
+
+<% if @connection.configured? %>
+  <h2>Connected Cameras</h2>
+  <% cameras = Camera.ordered %>
+  <% if cameras.any? %>
+    <ul class="camera-list">
+      <% cameras.each do |camera| %>
+        <li>
+          <%= link_to camera.name, camera_path(camera) %>
+          <span class="device-type"><%= camera.device_type %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No cameras found. Try re-authorizing to sync cameras.</p>
+  <% end %>
+<% end %>

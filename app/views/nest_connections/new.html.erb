@@ -1,0 +1,45 @@
+<% content_for(:title) { "Connect to Nest - Nestbox" } %>
+
+<div class="page-header">
+  <h1>Connect to Nest</h1>
+</div>
+
+<div class="setup-instructions">
+  <% if @connection.project_id.blank? %>
+    <p>To connect Nestbox to your Nest cameras, you need a Device Access Project ID from Google.</p>
+
+    <h2>Setup Steps</h2>
+    <ol>
+      <li>Go to the <a href="https://console.nest.google.com/device-access" target="_blank">Device Access Console</a></li>
+      <li>Create a new project (one-time $5 fee) or select an existing one</li>
+      <li>Copy your <strong>Project ID</strong> (looks like: <code>d0bd6b3b-a53f-46fc-aa92-31e6ff2b22e3</code>)</li>
+      <li>Enter it below and click "Connect"</li>
+    </ol>
+
+    <%= form_with url: nest_connection_path, method: :post, class: "connection-form", data: { turbo: false } do |form| %>
+      <div class="field">
+        <%= form.label :project_id, "Device Access Project ID" %>
+        <%= form.text_field :project_id, required: true, placeholder: "d0bd6b3b-a53f-46fc-aa92-31e6ff2b22e3" %>
+      </div>
+
+      <div class="actions">
+        <%= form.submit "Connect to Nest", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  <% else %>
+    <p>Your Device Access Project is configured. Click below to authorize Nestbox to access your cameras.</p>
+
+    <div class="current-project">
+      <strong>Project ID:</strong> <code><%= @connection.project_id %></code>
+      <%= link_to "Change", new_nest_connection_path(reset: true), class: "btn-link" %>
+    </div>
+
+    <%= form_with url: nest_connection_path, method: :post, class: "connection-form", data: { turbo: false } do |form| %>
+      <div class="actions">
+        <%= form.submit "Authorize with Google", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+
+    <p class="note">You'll be redirected to Google to grant access. Make sure to select <strong>all devices</strong> when prompted.</p>
+  <% end %>
+</div>

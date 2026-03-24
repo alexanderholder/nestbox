@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   root "events#index"
 
   resource :session, only: [ :new, :create, :destroy ]
+  resource :nest_connection, only: [ :show, :new, :create, :destroy ] do
+    get :callback, on: :member
+  end
   get "up" => "rails/health#show", as: :rails_health_check
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
