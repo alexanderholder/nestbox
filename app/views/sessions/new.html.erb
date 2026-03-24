@@ -1,0 +1,17 @@
+<div class="login-box">
+  <h1>Nestbox</h1>
+
+  <% if flash[:alert] %>
+    <div class="alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <%= form_with url: session_path, method: :post do |form| %>
+    <div class="field">
+      <%= form.password_field :password, placeholder: "Password", autofocus: true, required: true %>
+    </div>
+
+    <div class="actions">
+      <%= form.submit "Sign In" %>
+    </div>
+  <% end %>
+</div>

@@ -1,7 +1,12 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  include Authentication
 
-  # Changes to the importmap will invalidate the etag for HTML responses
+  allow_browser versions: :modern
   stale_when_importmap_changes
+
+  private
+    def nest_connection_status
+      @nest_connection_status ||= NestConnectionStatus.current
+    end
+    helper_method :nest_connection_status
 end
