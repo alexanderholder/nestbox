@@ -33,6 +33,12 @@ class NestConnectionsController < ApplicationController
     end
   end
 
+  def update
+    @connection = NestConnectionStatus.current
+    @connection.update!(pubsub_mode: params[:pubsub_mode])
+    redirect_to nest_connection_path, notice: "Event delivery mode updated"
+  end
+
   def destroy
     NestConnectionStatus.current.disconnect!
     redirect_to nest_connection_path, notice: "Disconnected from Nest"

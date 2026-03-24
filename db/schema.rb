@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_23_232859) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_24_062542) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -77,6 +77,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_23_232859) do
     t.datetime "last_failure_at"
     t.datetime "last_success_at"
     t.string "project_id"
+    t.string "pubsub_mode", default: "pull", null: false
     t.text "refresh_token"
     t.string "state", default: "unknown", null: false
     t.datetime "token_expires_at"

@@ -38,6 +38,52 @@
 </div>
 
 <% if @connection.configured? %>
+  <div class="event-delivery-settings">
+    <h2>Event Delivery</h2>
+
+    <%= form_with url: nest_connection_path, method: :patch, class: "pubsub-mode-form" do |f| %>
+      <div class="radio-group">
+        <label class="radio-option">
+          <%= f.radio_button :pubsub_mode, "pull", checked: @connection.pull?, onchange: "this.form.submit()" %>
+          <span class="radio-label">
+            <strong>Pull (Polling)</strong>
+            <small>Check for events every 30 seconds. Simple setup, no public URL needed.</small>
+          </span>
+        </label>
+
+        <label class="radio-option">
+          <%= f.radio_button :pubsub_mode, "push", checked: @connection.push?, onchange: "this.form.submit()" %>
+          <span class="radio-label">
+            <strong>Push (Webhook)</strong>
+            <small>Receive events instantly. Requires public URL and GCP configuration.</small>
+          </span>
+        </label>
+      </div>
+    <% end %>
+
+    <% if @connection.push? %>
+      <div class="webhook-config">
+        <h3>Webhook Configuration</h3>
+        <p>Configure this URL in your Google Cloud Pub/Sub subscription:</p>
+        <code class="webhook-url"><%= webhooks_nest_events_url %></code>
+
+        <details>
+          <summary>Setup Instructions</summary>
+          <ol>
+            <li>Go to <a href="https://console.cloud.google.com/cloudpubsub/subscription" target="_blank">Google Cloud Pub/Sub Subscriptions</a></li>
+            <li>Select your subscription (e.g., <code>nestbox-events-sub</code>)</li>
+            <li>Click "Edit"</li>
+            <li>Change "Delivery type" to "Push"</li>
+            <li>Enter the webhook URL above</li>
+            <li>Save changes</li>
+          </ol>
+        </details>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @connection.configured? %>
   <h2>Connected Cameras</h2>
   <% cameras = Camera.ordered %>
   <% if cameras.any? %>

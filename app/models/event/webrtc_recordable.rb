@@ -1,7 +1,7 @@
 module Event::WebrtcRecordable
   extend ActiveSupport::Concern
 
-  WEBRTC_DURATION_SECONDS = 45
+  WEBRTC_DURATION_SECONDS = 20
   WEBRTC_MAX_RETRIES = 5
   WEBRTC_RETRY_DELAY = 3
 

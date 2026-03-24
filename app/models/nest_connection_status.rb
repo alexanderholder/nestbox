@@ -18,6 +18,8 @@ class NestConnectionStatus < ApplicationRecord
     auth_failed: "auth_failed"
   }, default: :unknown
 
+  enum :pubsub_mode, { pull: "pull", push: "push" }, default: :pull
+
   def self.current
     first_or_create!
   end

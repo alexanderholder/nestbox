@@ -1,8 +1,12 @@
 Rails.application.routes.draw do
   root "events#index"
 
+  namespace :webhooks do
+    resource :nest_events, only: :create
+  end
+
   resource :session, only: [ :new, :create, :destroy ]
-  resource :nest_connection, only: [ :show, :new, :create, :destroy ] do
+  resource :nest_connection, only: [ :show, :new, :create, :update, :destroy ] do
     get :callback, on: :member
   end
 

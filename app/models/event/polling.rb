@@ -10,14 +10,14 @@ module Event::Polling
     end
 
     def poll_now
-      if pubsub_configured?
-        Poller.new.process_all
-      end
+      return unless should_poll?
+
+      Poller.new.process_all
     end
 
     private
-      def pubsub_configured?
-        GCP_PROJECT.present?
+      def should_poll?
+        GCP_PROJECT.present? && NestConnectionStatus.current&.pull?
       end
   end
 
@@ -42,28 +42,28 @@ module Event::Polling
       Rails.logger.error "Pub/Sub poll failed: #{e.message}"
     end
 
+    def process_message(received_message)
+      data = JSON.parse(received_message.data)
+      resource_update = data["resourceUpdate"] || {}
+      events = resource_update["events"] || {}
+
+      return if events.empty?
+
+      device_id = extract_device_id(resource_update)
+      camera = Camera.find_by(nest_id: device_id)
+
+      if camera
+        process_camera_events(camera, events, data)
+      else
+        Rails.logger.warn "Unknown camera: #{device_id}"
+      end
+    end
+
     private
       def subscriber
         @subscriber ||= begin
           require "google/cloud/pubsub"
           Google::Cloud::PubSub.new(project_id: GCP_PROJECT).subscriber(SUBSCRIPTION_NAME)
-        end
-      end
-
-      def process_message(received_message)
-        data = JSON.parse(received_message.data)
-        resource_update = data["resourceUpdate"] || {}
-        events = resource_update["events"] || {}
-
-        return if events.empty?
-
-        device_id = extract_device_id(resource_update)
-        camera = Camera.find_by(nest_id: device_id)
-
-        if camera
-          process_camera_events(camera, events, data)
-        else
-          Rails.logger.warn "Unknown camera: #{device_id}"
         end
       end
 
