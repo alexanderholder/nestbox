@@ -145,22 +145,6 @@ class NestConnectionStatus < ApplicationRecord
     response["results"]
   end
 
-  def generate_event_image(device_id:, event_id:)
-    response = execute_command(device_id, "CameraEventImage.GenerateImage", eventId: event_id)
-
-    if response["results"]
-      { url: response.dig("results", "url"), token: response.dig("results", "token") }
-    end
-  end
-
-  def generate_clip_preview(device_id:, event_id:)
-    response = execute_command(device_id, "CameraClipPreview.GenerateClipPreview", eventId: event_id)
-
-    if response["results"]
-      { url: response.dig("results", "clipPreviewUrl"), token: response.dig("results", "token") }
-    end
-  end
-
   def test_api_connection
     fetch_cameras
     true
