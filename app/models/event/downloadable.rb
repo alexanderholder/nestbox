@@ -34,7 +34,7 @@ module Event::Downloadable
   end
 
   def record_clip_later
-    RecordClipJob.perform_later(self)
+    Event::RecordClipJob.perform_later(self)
   end
 
   def record_clip_now

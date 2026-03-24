@@ -38,7 +38,7 @@ module Camera::Syncable
   end
 
   def sync_later
-    SyncJob.perform_later(self)
+    Camera::SyncJob.perform_later(self)
   end
 
   def sync_now
