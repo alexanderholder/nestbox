@@ -33,3 +33,7 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Ignore Google Cloud credentials
+/config/google_cloud_credentials.json
+/config/*credentials*.json
+
