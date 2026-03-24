@@ -1,0 +1,120 @@
+<% content_for(:title) { "#{@camera.name} - Nestbox" } %>
+
+<div class="page-header">
+  <h1><%= @camera.name %></h1>
+  <span class="device-type"><%= @camera.device_type&.titleize || "Camera" %></span>
+
+  <div class="camera-actions">
+    <% if @camera.last_synced_at %>
+      <span class="last-sync">Last sync: <%= time_ago_in_words(@camera.last_synced_at) %> ago</span>
+    <% end %>
+    <%= link_to "Full Screen", camera_stream_path(@camera), class: "btn" %>
+    <%= button_to "Sync Now", camera_sync_path(@camera), class: "sync-btn" %>
+  </div>
+</div>
+
+<div class="live-stream-embed"
+     data-controller="live-stream"
+     data-live-stream-camera-id-value="<%= @camera.id %>"
+     data-live-stream-auto-connect-value="false"
+     data-stream-state="idle">
+  <div class="video-container video-container--live">
+    <video data-live-stream-target="video"
+           autoplay
+           playsinline
+           muted>
+    </video>
+    <div class="video-overlay">
+      <div class="video-overlay__loading">
+        <div class="spinner"></div>
+        <span>Connecting to camera...</span>
+      </div>
+    </div>
+  </div>
+  <div class="stream-controls">
+    <span class="status status--disconnected" data-live-stream-target="status">Not connected</span>
+    <div class="stream-controls__buttons">
+      <button type="button"
+              class="btn btn-primary"
+              data-live-stream-target="startButton"
+              data-action="live-stream#reconnect">
+        Start Live View
+      </button>
+      <button type="button"
+              class="btn btn-secondary"
+              data-live-stream-target="reconnectButton"
+              data-action="live-stream#reconnect"
+              hidden>
+        Reconnect
+      </button>
+      <button type="button"
+              class="btn"
+              data-live-stream-target="stopButton"
+              data-action="live-stream#stop"
+              hidden>
+        Stop
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="camera-stats-bar">
+  <div class="stat">
+    <span class="value"><%= @camera.events.count %></span>
+    <span class="label">Total Events</span>
+  </div>
+  <div class="stat">
+    <span class="value"><%= @camera.events.downloaded.count %></span>
+    <span class="label">Downloaded</span>
+  </div>
+  <div class="stat">
+    <span class="value"><%= @camera.events.pending_download.count %></span>
+    <span class="label">Pending</span>
+  </div>
+  <div class="stat">
+    <span class="value"><%= @camera.events.failed_download.count %></span>
+    <span class="label">Failed</span>
+  </div>
+</div>
+
+<h2>Recent Events</h2>
+
+<% if @events.any? %>
+  <div class="events-grid">
+    <% @events.each do |event| %>
+      <%= link_to event_path(event), class: "event-card" do %>
+        <div class="event-thumbnail">
+          <% if event.completed? && event.clip.attached? %>
+            <video preload="metadata" muted>
+              <source src="<%= url_for(event.clip) %>#t=0.5" type="video/mp4">
+            </video>
+          <% else %>
+            <div class="placeholder">
+              <span class="status <%= event.download_state %>"><%= event.download_state.titleize %></span>
+            </div>
+          <% end %>
+        </div>
+        <div class="event-info">
+          <span class="event-type <%= event.event_type %>"><%= event.event_type.titleize %></span>
+          <time datetime="<%= event.start_time.iso8601 %>">
+            <%= time_ago_in_words(event.start_time) %> ago
+          </time>
+          <% if event.duration_seconds&.positive? %>
+            <span class="duration"><%= event.duration_seconds %>s</span>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if @camera.events.count > 50 %>
+    <div class="view-all">
+      <%= link_to "View all events", events_path(camera_id: @camera.id) %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="empty-state">
+    <p>No events recorded yet.</p>
+    <p>Events will appear here after the camera syncs.</p>
+  </div>
+<% end %>

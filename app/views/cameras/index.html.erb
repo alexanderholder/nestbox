@@ -1,0 +1,50 @@
+<% content_for(:title) { "Cameras - Nestbox" } %>
+
+<div class="page-header">
+  <h1>Cameras</h1>
+</div>
+
+<% if @cameras.any? %>
+  <div class="cameras-list">
+    <% @cameras.each do |camera| %>
+      <div class="camera-card">
+        <div class="camera-info">
+          <h2><%= link_to camera.name, camera_path(camera) %></h2>
+          <span class="device-type"><%= camera.device_type&.titleize || "Camera" %></span>
+        </div>
+
+        <div class="camera-stats">
+          <div class="stat">
+            <span class="value"><%= camera.events.count %></span>
+            <span class="label">Events</span>
+          </div>
+          <div class="stat">
+            <span class="value"><%= camera.events.downloaded.count %></span>
+            <span class="label">Downloaded</span>
+          </div>
+          <div class="stat">
+            <span class="value"><%= camera.events.pending_download.count %></span>
+            <span class="label">Pending</span>
+          </div>
+        </div>
+
+        <div class="camera-actions">
+          <span class="last-sync">
+            <% if camera.last_synced_at %>
+              Last sync: <%= time_ago_in_words(camera.last_synced_at) %> ago
+            <% else %>
+              Never synced
+            <% end %>
+          </span>
+
+          <%= button_to "Sync Now", camera_sync_path(camera), class: "sync-btn" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <p>No cameras configured.</p>
+    <p>Run <code>rails nestbox:setup</code> to discover and configure your cameras.</p>
+  </div>
+<% end %>
