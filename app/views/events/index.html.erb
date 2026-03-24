@@ -21,21 +21,7 @@
   <div class="events-grid">
     <% @events.each do |event| %>
       <%= link_to event_path(event), class: "event-card" do %>
-        <div class="event-thumbnail">
-          <% if event.webrtc_clip.attached? %>
-            <video preload="metadata" muted>
-              <source src="<%= url_for(event.webrtc_clip) %>#t=0.5" type="video/mp4">
-            </video>
-          <% elsif event.clip.attached? %>
-            <video preload="metadata" muted>
-              <source src="<%= url_for(event.clip) %>#t=0.5" type="video/mp4">
-            </video>
-          <% else %>
-            <div class="placeholder">
-              <span class="status <%= event.download_state %>"><%= event.download_state.titleize %></span>
-            </div>
-          <% end %>
-        </div>
+        <%= render "events/thumbnail", event: event %>
         <div class="event-info">
           <span class="camera-name"><%= event.camera.name %></span>
           <span class="event-type <%= event.event_type %>"><%= event.event_type.titleize %></span>

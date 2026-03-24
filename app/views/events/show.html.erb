@@ -18,13 +18,9 @@
   </div>
 
   <div class="video-container">
-    <% if @event.webrtc_clip.attached? %>
+    <% if @event.has_clip? %>
       <video controls autoplay preload="auto">
-        <source src="<%= url_for(@event.webrtc_clip) %>" type="video/mp4">
-      </video>
-    <% elsif @event.clip.attached? %>
-      <video controls autoplay preload="auto">
-        <source src="<%= url_for(@event.clip) %>" type="video/mp4">
+        <source src="<%= url_for(@event.preferred_clip) %>#t=0.5" type="video/mp4">
       </video>
     <% elsif @event.pending? %>
       <div class="video-placeholder">
@@ -64,7 +60,7 @@
       <dd><%= @event.start_time.strftime("%B %d, %Y at %I:%M:%S %p") %></dd>
     </dl>
 
-    <% if @event.webrtc_clip.attached? || @event.clip.attached? %>
+    <% if @event.has_clip? %>
       <div class="actions">
         <% if @event.webrtc_clip.attached? %>
           <%= link_to "Download Recording", rails_blob_path(@event.webrtc_clip, disposition: "attachment"), class: "download-btn" %>

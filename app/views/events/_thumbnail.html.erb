@@ -1,0 +1,11 @@
+<div class="event-thumbnail">
+  <% if event.has_clip? %>
+    <video preload="metadata" muted>
+      <source src="<%= url_for(event.preferred_clip) %>#t=0.5" type="video/mp4">
+    </video>
+  <% else %>
+    <div class="placeholder">
+      <span class="status <%= event.download_state %>"><%= event.download_state.titleize %></span>
+    </div>
+  <% end %>
+</div>

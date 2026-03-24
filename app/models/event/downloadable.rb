@@ -44,6 +44,18 @@ module Event::Downloadable
     camera.present?
   end
 
+  def has_clip?
+    webrtc_clip.attached? || clip.attached?
+  end
+
+  def preferred_clip
+    if webrtc_clip.attached?
+      webrtc_clip
+    elsif clip.attached?
+      clip
+    end
+  end
+
   private
     def download_clip_preview
       access_token = NestConnectionStatus.current.current_access_token
