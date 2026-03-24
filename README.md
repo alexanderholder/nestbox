@@ -6,6 +6,8 @@ Self-hosted archive for Google Nest camera events. Records clips via WebRTC befo
 
 Nest only retains event clips for 3 hours without Nest Aware. Nestbox listens for camera events and immediately records the live stream, preserving footage that would otherwise be lost.
 
+<img width="1166" height="703" alt="Screenshot 2026-03-24 at 5 24 23 pm" src="https://github.com/user-attachments/assets/b2c7e31a-4ddd-4ea0-ab05-45ebdcbbf2e5" />
+
 ## Features
 
 - Real-time event capture via Pub/Sub (pull or push)
