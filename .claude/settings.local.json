@@ -1,8 +1,30 @@
 {
   "permissions": {
-    "allow": [],
-    "deny": [],
-    "ask": [],
-    "additionalDirectories": ["~/Code/fizzy", "~/Code/hindsiteind/react-native"]
+    "allow": [
+      "Bash(git:*)",
+      "Bash(bundle:*)",
+      "Bash(rails:*)",
+      "Bash(rake:*)",
+      "Bash(rubocop:*)",
+      "Bash(xargs:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "Bash(bin/rails runner:*)",
+      "Bash(bin/rails routes:*)",
+      "Bash(bin/rails:*)",
+      "Bash(jq:*)",
+      "WebFetch(domain:gist.github.com)",
+      "Bash(find:*)",
+      "WebFetch(domain:developers.google.com)",
+      "Bash(bin/importmap pin:*)",
+      "Bash(ls:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)"
+    ],
+    "additionalDirectories": [
+      "~/Code/fizzy"
+    ]
   }
 }
