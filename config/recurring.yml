@@ -1,6 +1,6 @@
 development:
   poll_nest_events:
-    class: Event::PollJob
+    command: "Event.poll_now"
     schedule: every 30 seconds
 
 production:
@@ -9,5 +9,5 @@ production:
     schedule: every hour at minute 12
 
   poll_nest_events:
-    class: Event::PollJob
+    command: "Event.poll_now"
     schedule: every 30 seconds
