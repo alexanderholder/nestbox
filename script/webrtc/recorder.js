@@ -9,24 +9,38 @@ if (!deviceId || !duration || !outputPath || !accessToken || !projectId) {
 }
 
 const NEST_API_URL = `https://smartdevicemanagement.googleapis.com/v1/enterprises/${projectId}/devices/${deviceId}:executeCommand`
-const TRACK_TIMEOUT_MS = 20000
+const TRACK_TIMEOUT_MS = 15000
+
+const log = (msg) => console.error(`[${(performance.now() / 1000).toFixed(2)}s] ${msg}`)
 
 async function record() {
+  log("Launching browser")
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: "new",
     args: [
       "--use-fake-ui-for-media-stream",
       "--no-sandbox",
-      "--disable-setuid-sandbox"
+      "--disable-setuid-sandbox",
+      "--disable-gpu",
+      "--disable-dev-shm-usage",
+      "--disable-extensions"
     ]
   })
+  log("Browser launched")
 
   try {
     const page = await browser.newPage()
+    page.on("console", msg => console.error(msg.text()))
 
+    log("Starting WebRTC setup")
     const chunks = await page.evaluate(async (nestApiUrl, accessToken, durationSecs, trackTimeoutMs) => {
+      const start = performance.now()
+      const log = (msg) => console.log(`[${((performance.now() - start) / 1000).toFixed(2)}s] ${msg}`)
+
+      log("Creating peer connection")
       const pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        iceCandidatePoolSize: 10
       })
 
       pc.addTransceiver("audio", { direction: "recvonly" })
@@ -35,6 +49,7 @@ async function record() {
 
       const offer = await pc.createOffer()
       await pc.setLocalDescription(offer)
+      log("Offer created, calling Nest API")
 
       const response = await fetch(nestApiUrl, {
         method: "POST",
@@ -54,6 +69,7 @@ async function record() {
       }
 
       const { results } = await response.json()
+      log("Nest API responded, setting remote description")
       const mungedSdp = results.answerSdp.replace(/a=sendrecv/g, "a=sendonly")
 
       return new Promise((resolve, reject) => {
@@ -67,6 +83,7 @@ async function record() {
 
         pc.ontrack = (event) => {
           if (event.track.kind === "video" && !recorder) {
+            log("Video track received, starting recording")
             recorder = new MediaRecorder(event.streams[0], {
               mimeType: "video/webm;codecs=vp8,opus"
             })
@@ -78,6 +95,7 @@ async function record() {
             }
 
             recorder.onstop = async () => {
+              log("Recording stopped")
               const blob = new Blob(chunks, { type: "video/webm" })
               const buffer = await blob.arrayBuffer()
               resolve(Array.from(new Uint8Array(buffer)))
@@ -87,7 +105,7 @@ async function record() {
               reject(new Error(`MediaRecorder error: ${e.error}`))
             }
 
-            recorder.start(1000)
+            recorder.start(100)
             clearTimeout(timeout)
             setTimeout(() => {
               recorder.stop()
@@ -97,6 +115,7 @@ async function record() {
         }
 
         pc.oniceconnectionstatechange = () => {
+          log(`ICE state: ${pc.iceConnectionState}`)
           if (pc.iceConnectionState === "failed") {
             clearTimeout(timeout)
             pc.close()
