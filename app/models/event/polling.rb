@@ -29,8 +29,6 @@ module Event::Polling
         received_messages = subscriber.pull(immediate: true, max: 100)
         break if received_messages.empty?
 
-        Rails.logger.info "Pulled #{received_messages.size} messages from Pub/Sub"
-
         received_messages.each do |message|
           process_message(message)
           message.acknowledge!
@@ -39,7 +37,7 @@ module Event::Polling
         total_processed += received_messages.size
       end
 
-      Rails.logger.info "Total processed: #{total_processed} messages"
+      Rails.logger.info "Processed #{total_processed} Pub/Sub messages" if total_processed > 0
     rescue Google::Cloud::Error => e
       Rails.logger.error "Pub/Sub poll failed: #{e.message}"
     end
@@ -57,17 +55,15 @@ module Event::Polling
         resource_update = data["resourceUpdate"] || {}
         events = resource_update["events"] || {}
 
-        if events.any?
-          device_id = extract_device_id(resource_update)
-          camera = Camera.find_by(nest_id: device_id)
+        return if events.empty?
 
-          if camera
-            process_camera_events(camera, events, data)
-          else
-            Rails.logger.warn "Camera not found for device_id: #{device_id}"
-          end
+        device_id = extract_device_id(resource_update)
+        camera = Camera.find_by(nest_id: device_id)
+
+        if camera
+          process_camera_events(camera, events, data)
         else
-          Rails.logger.debug "No events in message, skipping"
+          Rails.logger.warn "Unknown camera: #{device_id}"
         end
       end
 
@@ -92,12 +88,9 @@ module Event::Polling
       def update_event_with_clip(camera, session_id, clip_preview_url)
         event = camera.events.find_by(event_session_id: session_id)
 
-        if event.nil?
-          Rails.logger.info "No event found for session_id: #{session_id}, creating placeholder"
-        elsif event.clip_preview_url.blank?
+        if event && event.clip_preview_url.blank?
           event.update!(clip_preview_url: clip_preview_url)
           event.record_clip_later unless event.completed?
-          Rails.logger.info "Updated event #{event.id} with clip URL via session_id"
         end
       end
 
@@ -140,20 +133,21 @@ module Event::Polling
         if updates.any?
           event.update!(updates)
           event.record_clip_later if updates[:clip_preview_url] && !event.completed?
-          Rails.logger.info "Updated event #{event.id}"
         end
       end
 
       def create_new_event(event, event_type, event_session_id, timestamp, clip_preview_url, camera)
-        event.event_type = normalize_event_type(event_type)
-        event.event_session_id = event_session_id
-        event.start_time = Time.parse(timestamp)
-        event.end_time = event.start_time + 30.seconds
-        event.duration_seconds = 30
-        event.clip_preview_url = clip_preview_url
+        event.assign_attributes(
+          event_type: normalize_event_type(event_type),
+          event_session_id: event_session_id,
+          start_time: Time.parse(timestamp),
+          end_time: Time.parse(timestamp) + 30.seconds,
+          duration_seconds: 30,
+          clip_preview_url: clip_preview_url
+        )
         event.save!
 
-        Rails.logger.info "Created event #{event.id} (#{event.event_type}) for camera #{camera.name}"
+        Rails.logger.info "Event created: #{camera.name} #{event.event_type}"
         event.record_clip_later if clip_preview_url.present?
       end
 
