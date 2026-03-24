@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  include Authentication
+  include Authentication, Timezone
 
   allow_browser versions: :modern
   stale_when_importmap_changes
